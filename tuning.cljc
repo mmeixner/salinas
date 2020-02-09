@@ -1,4 +1,4 @@
-(ns tuning.cljc)
+(ns salinas.tuning)
 
 ;; math functions
 (defn abs [x] (if (neg? x) (- x) x))
@@ -81,8 +81,7 @@
 ;; (def fourth-of-synt-comma (frac (interval 81 80) 4))
 ;; => {:cents 5.376572399178695}
 
-(defn- gcd
-  "Greatest common denominator."
+(defn- gcd ;; greatest common denominator.
   [a b]
   (if (zero? b)
     a
@@ -98,11 +97,11 @@
 
 (defn interval
   "Create an interval from either:
-    - a single number -> {:cents <number>}
-    - two integers -> {:ratio […] :cents …}.
+    - a single number -> {:cents ...}
+    - two integers    -> {:ratio [...] :cents ...}.
 
-  The order of the two integers doesn't matter, the stored :ratio
-  is in 'up' position."
+  The order of the two integers doesn't matter, the :ratio
+  is stored in 'up' position (rising interval)."
   ([x] {:cents x})
   ([a b]
    (let [r (vec (simplify (sort > [a b])))]
@@ -110,14 +109,13 @@
      :cents (cents r)})))
 
 (defn- multiply-ratios
-  ;; Multiplies ratios. With no argument returns [1 1] (neutral element)
-  ([] [1 1])
+  ([] [1 1]) ;; with no argument returns [1 1] (neutral element)
   ([& ps]
    (vector (apply * (map first  ps))
            (apply * (map second ps)))))
 
 (defn chain
-  "Calculate product of chain of 'intervals'.
+  "Calculate 'sum' of chain of intervals.
   Returns a new `interval`:
    - a map of either {:ratio […], :cents …}, if all source intervals were ratios
    - or a map {:cents …}."
