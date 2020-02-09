@@ -10,9 +10,12 @@ A `pitch` or `interval` is a map, which has one obligatory key `:cents`.
 
 Example: `{:cents 386}`
 
-Moreover it can have a second key `:ratio`. 
+Moreover it can have a second key `:ratio`.
 
-There is a maker function `interval. If you give it two integers, it creates a ratio, and calculates the cent value:
+To create an interval, just use the function `interval`.
+(Of course you can create these manually.)
+
+If you give it two integers, it creates a ratio, and calculates the cent value:
 
 `(interval 3 2)`
 => `{:ratio [3 2], :cents 701.9550008653874}`
