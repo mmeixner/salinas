@@ -193,7 +193,7 @@
   With no args returns a unison, with one arg return `p` unaltered."
   ([] (interval 1 1))
   ([p] p)
-  ([p n] (apply chain-n (repeat n p))))
+  ([n p] (apply chain-n (repeat n p))))
 ;; Example:
 ;; (def pythagorean-third (stack fifth 4))
 ;; => {:ratio [81 64], :cents 407.8200034615497}
@@ -274,21 +274,3 @@
 ;; (defn nearest
 ;;   [scale p]
 ;;   (first (near scale p)))
-
-;; Example
-;; (def eq
-;;  [{:pname :c  :cents 0}
-;;   {:pname :cs :cents 100}
-;;   {:pname :d  :cents 200}
-;;   {:pname :ds :cents 300}
-;;   {:pname :e  :cents 400}
-;;   {:pname :f  :cents 500}
-;;   {:pname :fs :cents 600}
-;;   {:pname :g  :cents 700}
-;;   {:pname :gs :cents 800}
-;;   {:pname :a  :cents 900}
-;;   {:pname :bb :cents 1000}
-;;   {:pname :b  :cents 1100}])
-
-;; (near eq (cents 5 4) 30)
-;; => [{:pname :e, :cents 400, :dev -13.686286135165176}]
