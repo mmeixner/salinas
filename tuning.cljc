@@ -15,8 +15,8 @@
   #? (:clj  #(Math/pow %1 %2)
       :cljs #(.pow js/Math %1 %2)))
 
-(defn pow2 [x]
-  (pow 2 x))
+(def pow2
+  (partial pow 2))
 
 (def log
   #?(:clj  #(Math/log %)
