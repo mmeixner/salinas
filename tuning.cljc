@@ -1,6 +1,6 @@
 (ns tuning.cljc)
 
-;; MATH methods
+;; math functions
 (defn abs [x] (if (neg? x) (- x) x))
 
 (def floor
@@ -105,10 +105,9 @@
   is in 'up' position."
   ([x] {:cents x})
   ([a b]
-   (let [h (max a b)
-         l (min a b)]
-     {:ratio (simplify [h l])
-      :cents (cents [h l])})))
+   (let [r (vec (simplify (sort > [a b])))]
+    {:ratio r
+     :cents (cents r)})))
 
 (defn- multiply-ratios
   ;; Multiplies ratios. With no argument returns [1 1] (neutral element)
@@ -262,7 +261,7 @@
 ;;        ([scale p tolerance
 ;;          (->> (near scale p
 ;;                 (filterv #(> tolerance (abs (:dev %))))))]))))
-;; 
+;;
 ;; (defn nearest
 ;;   [scale p]
 ;;   (first (near scale p)))
