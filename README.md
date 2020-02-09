@@ -21,7 +21,7 @@ If you give it two integers, it creates a ratio, and calculates the cent value:
 => `{:ratio [3 2], :cents 701.9550008653874}`
 
 
-I there is only one argument to `interval`, the number is interpreted as cent value:
+If there is only one argument to `interval`, the number is interpreted as cent value:
 
 `(interval 100)`
 => {:cents 100}
