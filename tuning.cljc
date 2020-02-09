@@ -180,6 +180,13 @@
   [& intervals]
   (normalize (apply chain intervals)))
 
+;; Example:
+;; (chain-n fifth fifth third)
+;; => {:ratio [45 32], :cents 590.2237155956096}
+
+
+;; There is a function, which does just this in one go,
+;; when only one type of generator interval is involved:
 (defn stack
   "Convenience function. Stacks interval `p` `n` times, and reduces
   the tower to an interval <= octave ('normalizing' it).
@@ -187,6 +194,10 @@
   ([] (interval 1 1))
   ([p] p)
   ([p n] (apply chain-n (repeat n p))))
+;; Example:
+;; (def pythagorean-third (stack fifth 4))
+;; => {:ratio [81 64], :cents 407.8200034615497}
+
 
 (defn temper
   "Give this function a `target` interval and `ch`, a chain of intervals
