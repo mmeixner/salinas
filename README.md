@@ -10,7 +10,7 @@ A `pitch` or `interval` is a map, which has one obligatory key `:cents`.
 Example: `{:cents 386}`
 
 Moreover it can have a second key `:ratio`.  
-Example: `{:ratio [2 1] :cents 1200}
+Example: `{:ratio [2 1] :cents 1200}`
 
 To create an interval, just use the function `interval`
 (of course you can create these manually).
