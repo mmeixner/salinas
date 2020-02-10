@@ -3,14 +3,6 @@
 ;; math functions
 (defn abs [x] (if (neg? x) (- x) x))
 
-(def floor
-  #?(:clj  #(Math/floor %)
-     :cljs #(.floor js/Math %)))
-
-(def ceil
-  #?(:clj  #(Math/ceil %)
-     :cljs #(.ceil js/Math %)))
-
 (def pow
   #? (:clj  #(Math/pow %1 %2)
       :cljs #(.pow js/Math %1 %2)))
