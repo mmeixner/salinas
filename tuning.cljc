@@ -44,16 +44,6 @@
         Math/round
         (* (pow 10 (- precision))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; An <interval> (which can also define a pitch, if it is applied from a fixed
-;; pitch origin) is a map of key/values:
-;; 1) A <ratio> of two integers {:ratio [a b]}, where (a >= b).
-;; 2) A <cent> value: {:cents 700}
-;; (Each interval will have a :cents key, like so:
-;; {:ratio [2 1], :cents 1200}
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; TODO spec for this? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defn cents
   "Returns cent value of `p`.
   `p` can be a <ratio> (a vector of two integers) or a single number;
@@ -85,6 +75,18 @@
   (if (number? p)
     p
     (mapv #(/ % (apply gcd p)) p)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; An <interval> (which can also define a pitch, if it is applied from a fixed
+;; pitch origin) is a map of key/values. It can be either
+;; A <ratio> of two integers {:ratio [a b]}, where (a >= b), and the
+;; corresponding :cent value:
+;; {:ratio [2 1], :cents 1200}
+;; or just a :cents value:
+;; {:cents 700}
+;; Each interval will have a :cents key.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; TODO spec for this? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn interval
   "Creates an <interval> from either:
