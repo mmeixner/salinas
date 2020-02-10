@@ -103,12 +103,14 @@
 
 (defn down
   "Returns downward version of interval `p`.
-  If the source <interval> incudes a <ratio>, the returned <interval> will also have one."
-  [p]
-  (if (:ratio p)
-    (assoc p :ratio (vec (reverse (:ratio p)))
-             :cents (- (cents (:ratio p))))
-    (update p :cents -)))
+  If the source <interval> includes a <ratio>, the returned <interval> will also have one.
+  With no argument supplied returns a unison."
+  ([] (interval 1 1))
+  ([p]
+   (if (:ratio p)
+     (assoc p :ratio (vec (reverse (:ratio p)))
+              :cents (- (cents (:ratio p))))
+     (update p :cents -))))
 
 (defn- multiply-ratios
   ([] [1 1])              ;; with no argument returns [1 1] (neutral element)
@@ -119,7 +121,7 @@
 (defn chain
   "Calculate intervallic 'sum' of `ps`.
   Returns a new <interval>
-  With no args supplied returns unison <interval>."
+  With no arguments supplied returns unison <interval>."
   ([] (interval 1 1))
   ([& ps]
    (if (every? :ratio ps)
