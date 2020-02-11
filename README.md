@@ -1,8 +1,8 @@
 # Salinas
 
-A library written in Clojure(Script) dealing with tuning and arranging musical pitches. More to come ...
+This is alpha, API likely to change!
 
-This is alpha, API may change.
+A library written in Clojure(Script) dealing with tuning and arranging musical pitches. More to come ...
 
 ### Data format:
 
@@ -12,10 +12,10 @@ Example: `{:cents 386}`
 Moreover it can have a second key `:ratio`.  
 Example: `{:ratio [2 1] :cents 1200}`
 
-To create an interval, just use the function `interval`
-(of course you can create these manually).
+To create an interval, use the function `interval`
+(or create it manually, if you like).
 
-If you give it two integers, it creates a `:ratio`, and calculates its `:cents` value:
+With two integers, `interval` creates a `:ratio`, and calculates its `:cents` value:
 
 `(interval 3 2)`  
 => `{:ratio [3 2], :cents 701.9550008653874}`
