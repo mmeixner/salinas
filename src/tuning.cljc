@@ -2,8 +2,8 @@
   (:require [salinas.math :as m]))
 
 (defn cents
-  "Returns cent value of <interval> `p`.
-  If given a single number it is considered a <cent> value already and returned unaltered."
+  "Return cent value of <interval> `p`.
+  A single number argument is considered a <cent> value already and returned unaltered."
   [p]
   (if (number? p)
       p
@@ -94,10 +94,6 @@
 ;; (def fourth-of-synt-comma (frac (interval 81 80) 4))
 ;; => {:cents 5.376572399178695}
 
-;; helper function(s): direction up/down
-;; (defn up)
-;; not really needed, because we store all intervals in "up" position already.
-
 (defn detune
   "Detunes `p` by `det` cents. If `p` had a key `:ratio`, it is
   replaced by `:ratio*`, so following calculations will stay irrational
@@ -142,14 +138,16 @@
 ;; when only one type of generator interval is involved:
 (defn stack
   "Convenience function. Stacks interval `p` `n` times, and reduces
-  the tower to an interval <= octave ('normalizing' it).
-  With no args supplied returns a unison, with one arg return `p` unaltered."
+  the tower to an interval smaller than an octave ('normalizing' it).
+  With no arguments returns a unison, with one arg return `p` unaltered."
   ([] unison)
   ([p] p)
   ([n p] (apply chain-n (repeat n p))))
-;; Example:
+;; Examples:
 ;; (def pythagorean-third (stack fifth 4))
 ;; => {:ratio [81 64], :cents 407.8200034615497}
+;; (def pythagorean-comma (stack (interval 2 3) 12))
+;; (def equal-tempered-triton (stack (interval 100) 6))
 
 (defn temper
   "This function expects a `target` interval and `ch`, a coll of intervals
@@ -167,10 +165,6 @@
         (detune % (- corr)))
      ch)))
 
-;; Examples:
-;; (def pythagorean-comma (stack (interval 2 3) 12))
-;; (def equal-tempered-triton (stack (interval 100) 6))
-
 (defn stretch
   "Proportionally stretch (or compress) all <intervals> of coll `ch`
   such that their sum meets the `target` <interval>.
@@ -180,37 +174,9 @@
     (mapv #(hash-map :cents (* s (:cents %))) ch)))
 ;; use for octave stretching etc.
 
-(defn nearest-x
-  "Find nearest value in coll."
-  [coll x]
-  (apply min-key (partial distance x) coll))
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Example data: pure intervals
 ; (def octave (interval 2 1))
 ; (def fifth  (interval 3 2))
 ; (def fourth (interval 4 3))
 ; (def third  (interval 5 4))
-;;;;;;;;;;;;;;;;;;;;
-
-;; Ideas:
-
-;; (defn near
-;;   "Returns the pitches from `scale` (a coll of pitches), sorted from nearest upwards
-;;   from `p`.
-;;   Additionally a key `:dev`is added, which gives the deviation of `p`from the scale pitch.
-;;   `p`must be given in cents, the pitches in `scale` must have a `:cents` key.
-;;   If the third argument `tolerance` (also in cents) is supplied, returns only those items,
-;;   which lie inside this tolerance frame."
-;;   ([scale p]
-;;    (->> scale
-;;          (sort-by #(distance p (:cents %)))
-;;          (mapv #(assoc % :dev (- p (:cents %))))
-;;        ([scale p tolerance
-;;          (->> (near scale p
-;;                 (filterv #(> tolerance (abs (:dev %))))))]))))
-;;
-;; (defn nearest
-;;   [scale p]
-;;   (first (near scale p)))
