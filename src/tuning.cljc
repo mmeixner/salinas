@@ -1,72 +1,18 @@
-(ns salinas.tuning)
-
-;; math functions
-(defn abs [x] (if (neg? x) (- x) x))
-
-(def pow
-  #? (:clj  #(Math/pow %1 %2)
-      :cljs #(.pow js/Math %1 %2)))
-
-(def pow2
-  (partial pow 2))
-
-(def log
-  #?(:clj  #(Math/log %)
-     :cljs #(.log js/Math %)))
-
-(def log2
-  #?(:clj  #(/ (log %) (log 2))
-     :cljs #(.log2 js/Math %)))
-
-(defn distance [x y] (abs (- x y)))
-
-(defn nearest-x
-  "Find nearest value in coll."
-  [coll x]
-  (apply min-key (partial distance x) coll))
-
-;;;; TODO cljs version
-(defn round
-  "Round `x` to `precision` number of decimal places.
-  If `precision` is not supplied, rounds to integer."
-  ([x] (Math/round x))
-  ([precision x]
-   (->> x
-        (* (pow 10 precision))
-        Math/round
-        (* (pow 10 (- precision))))))
+(ns salinas.tuning
+  (:require [salinas.math :as m]))
 
 (defn cents
-  "Returns cent value of `p`.
-  `p` can be a <ratio> (a vector of two integers) or a single number;
-  in the latter case `p` is considered a <cent> value already and returned unaltered."
+  "Returns cent value of <interval> `p`.
+  If given a single number it is considered a <cent> value already and returned unaltered."
   [p]
   (if (number? p)
       p
-      (* 1200 (log2 (apply / p)))))
+      (* 1200 (m/log2 (apply / p)))))
 
 (defn cents->freq
   "Returns frequency of note `cent` away from `base-freq`."
   [base-freq cent]
-  (* base-freq (pow2 (/ cent 1200))))
-
-;; Example:
-;; (def fourth-of-synt-comma (frac (interval 81 80) 4))
-;; => {:cents 5.376572399178695}
-
-(defn- gcd ;; greatest common denominator.
-  [a b]
-  (if (zero? b)
-    a
-    (recur b (mod a b))))
-
-(defn- simplify
-  ;;Returns simplified ratio.
-  ;;If p is a single number it is considered a cent value and returned unchanged.
-  [p]
-  (if (number? p)
-    p
-    (mapv #(/ % (apply gcd p)) p)))
+  (* base-freq (m/pow2 (/ cent 1200))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; An <interval> (which can also define a pitch, if it is applied from a fixed
@@ -78,49 +24,47 @@
 ;; {:cents 700}
 ;; Each interval will have a :cents key.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; TODO spec for this? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Maybe TODO: spec for this? ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn interval
   "Creates an <interval> from either:
     - a single number -> {:cents ...}
-    - two integers    -> {:ratio [...] :cents ...}.
+    - two integers    -> {:ratio [...] :cents ...} *)
 
-  The order of the two integers doesn't matter, the :ratio
+  *) The order of the two integers doesn't matter, the :ratio
   is stored in 'up' position (rising interval)."
-  ([x] {:cents x})
+  ([x] {:cents (m/abs x)})
   ([a b]
-   (let [r (vec (simplify (sort > [a b])))]
+   (let [r (vec (m/simplify (sort > [a b])))]
     {:ratio r
      :cents (cents r)})))
+
+(def unison
+  "In the context of musical intervals this is the neutral element."
+  (interval 1 1))
 
 (defn down
   "Returns downward version of interval `p`.
   If the source <interval> includes a <ratio>, the returned <interval> will also have one.
   With no argument supplied returns a unison."
-  ([] (interval 1 1))
+  ([] unison)
   ([p]
    (if (:ratio p)
      (assoc p :ratio (vec (reverse (:ratio p)))
               :cents (- (cents (:ratio p))))
      (update p :cents -))))
 
-(defn- multiply-ratios
-  ([] [1 1])              ;; with no argument returns [1 1] (neutral element)
-  ([& ps]
-   (vector (apply * (map first  ps))
-           (apply * (map second ps)))))
-
 (defn chain
   "Calculate intervallic 'sum' of `ps`.
   Returns a new <interval>
-  With no arguments supplied returns unison <interval>."
-  ([] (interval 1 1))
+  With no arguments supplied returns a unison."
+  ([] unison)
   ([& ps]
    (if (every? :ratio ps)
      (let [r (->> ps
                   (map :ratio)
-                  (apply multiply-ratios)
-                  simplify)]
+                  (apply m/multiply-ratios)
+                  m/simplify)]
        {:ratio r :cents (cents r)})
      {:cents (apply + (map (:cents ps)))})))
 
@@ -143,9 +87,12 @@
    the returned <interval> only has a `:cents` key.
    If no `divider` is supplied, returns `p` unaltered.
    With no args supplied returns unison <interval>."
-  ([] (interval 1 1))
+  ([] unison)
   ([p] p)
   ([p divider] (interval (/ (:cents p) divider))))
+;; Example:
+;; (def fourth-of-synt-comma (frac (interval 81 80) 4))
+;; => {:cents 5.376572399178695}
 
 ;; helper function(s): direction up/down
 ;; (defn up)
@@ -168,8 +115,8 @@
     (update p :cents + det)))
 
 (defn normalize
-  "Reduces interval `p` to be smaller than an octave.
-  The direction of the interval is maintained."
+  "Reduces interval `p` to be smaller than an octave (for example to add it to
+  a scale definition). The direction of the interval is maintained."
   [p]
   (if-let [r (:ratio p)]
     (loop [[a b] r
@@ -181,8 +128,8 @@
     (assoc p :cents (rem (:cents p) 1200))))
 
 (defn chain-n
-  "Convenience function: chain <intervals> and normalize the sum.
-  With no args supplied returns unison <interval>."
+  "Convenience function: chain <intervals> and normalize the result.
+  With no args supplied returns unison."
   [& intervals]
   (normalize (apply chain intervals)))
 
@@ -197,7 +144,7 @@
   "Convenience function. Stacks interval `p` `n` times, and reduces
   the tower to an interval <= octave ('normalizing' it).
   With no args supplied returns a unison, with one arg return `p` unaltered."
-  ([] (interval 1 1))
+  ([] unison)
   ([p] p)
   ([n p] (apply chain-n (repeat n p))))
 ;; Example:
@@ -232,6 +179,12 @@
   (let [s (/ (:cents target) (:cents (apply chain ch)))]
     (mapv #(hash-map :cents (* s (:cents %))) ch)))
 ;; use for octave stretching etc.
+
+(defn nearest-x
+  "Find nearest value in coll."
+  [coll x]
+  (apply min-key (partial distance x) coll))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Example data: pure intervals
