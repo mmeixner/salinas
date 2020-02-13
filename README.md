@@ -1,6 +1,6 @@
 # Salinas
 
-This is alpha, API likely to change!
+This is pre-alpha, changing things around (so if you have a great idea ...)
 
 A library written in Clojure(Script) dealing with tuning and arranging musical pitches. More to come ...
 

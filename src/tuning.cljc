@@ -3,16 +3,23 @@
 
 (defn cents
   "Return cent value of <interval> `p`.
-  A single number argument is considered a <cent> value already and returned unaltered."
+  A single number argument is considered to be a <cent> value already and returned unaltered."
   [p]
   (if (number? p)
       p
       (* 1200 (m/log2 (apply / p)))))
 
 (defn cents->freq
-  "Returns frequency of note `cent` away from `base-freq`."
+  "Arguments:
+  `base-freq`: frequency from which to calculate (positive number)
+  `cent`: float (positive, negative or 0.0)"
   [base-freq cent]
   (* base-freq (m/pow2 (/ cent 1200))))
+;; Examples:
+;; (cents->freq 440.0 0)
+;; => 440.0
+;; (cents->freq 440.0 700.0)
+;; => 659.2551138257398
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; An <interval> (which can also define a pitch, if it is applied from a fixed
@@ -95,11 +102,10 @@
 ;; => {:cents 5.376572399178695}
 
 (defn detune
-  "Detunes `p` by `det` cents. If `p` had a key `:ratio`, it is
-  replaced by `:ratio*`, so following calculations will stay irrational
-  (`:cents` only).
+  "Detunes `p` by `det` cents. If `p` had a key `:ratio`, it is replaced by
+  `:ratio*`, so following calculations will continue working with `:cents` only.
   This function is useful for tempering intervals.
-  You can derive the 'history' of the resulting <interval> from `:ratio-detuned`
+  You can derive the 'history' of the resulting <interval> from `:ratio*`
   and `:detuned-by` keys."
   [p det]
   (if (:ratio p)
